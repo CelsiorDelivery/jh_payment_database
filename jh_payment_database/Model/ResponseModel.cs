@@ -19,6 +19,7 @@ namespace jh_payment_database.Model
         /// 
         /// </summary>
         public string Message { set; get; }
+        public string ErrorCode { set; get; }
 
         public static ResponseModel Ok(dynamic reponse, string message = "No content")
         {
@@ -37,6 +38,17 @@ namespace jh_payment_database.Model
                 ResponseBody = "No content",
                 StatusCode = HttpStatusCode.BadRequest,
                 Message = message ?? "Successfully completed"
+            };
+        }
+
+        public static ResponseModel Fail(string message, string ErrorCode)
+        {
+            return new ResponseModel
+            {
+                ResponseBody = "No content",
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = message ?? "Successfully completed",
+                ErrorCode = ErrorCode
             };
         }
     }
