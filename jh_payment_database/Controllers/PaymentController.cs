@@ -37,5 +37,11 @@ namespace jh_payment_database.Controllers
         {
             return await _transactionService.TransferAsync(senderId, receiverId, amount);
         }
+
+        [HttpGet("checkbalance")]
+        public async Task<ResponseModel> CheckBalance(long userId)
+        {
+            return await _transactionService.CheckBalance(userId);
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace jh_payment_database.Service
                 if (user == null)
                     return ResponseModel.BadRequest("User not found");
 
-                var receiver = await _context.UserAccounts.FindAsync(transaction.ToUserId);
+                var receiver = await _context.UserAccounts.FindAsync(transaction.FromUserId);
 
                 if (receiver == null)
                 {
@@ -79,14 +79,15 @@ namespace jh_payment_database.Service
                     return ResponseModel.BadRequest("User not found");
 
                 receiver.Balance -= transaction.Amount;
+                _context.UserAccounts.Update(receiver);
 
                 transaction.TransactionId = DateTime.Now.Ticks;
                 transaction.PaymentId = DateTime.Now.Ticks;
                 _context.Transactions.Add(transaction);
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                tx.Commit();
+                await tx.CommitAsync();
 
                 return await Task.FromResult(ResponseModel.Ok(transaction, "Success"));
             }
@@ -94,6 +95,25 @@ namespace jh_payment_database.Service
             {
                 _logger.LogError(ex.Message);
                 tx.Rollback();
+                throw;
+            }
+        }
+
+        public async Task<ResponseModel> CheckBalance(long userId)
+        {
+            try
+            {
+                // var sender = await _context.UserAccounts.FindAsync(transaction.FromUserId);
+                var userAccount = await _context.UserAccounts.FindAsync(userId);
+
+                if (userAccount == null)
+                    return ResponseModel.BadRequest("Account not opened");
+
+                return await Task.FromResult(ResponseModel.Ok(userAccount, "Success"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
                 throw;
             }
         }
