@@ -1,0 +1,112 @@
+﻿using jh_payment_database.DatabaseContext;
+using jh_payment_database.Entity;
+using jh_payment_database.Model;
+
+namespace jh_payment_database.Service
+{
+    public class UserService
+    {
+        private readonly JHDataAccessContext _context;
+        private readonly ILogger<UserService> _logger;
+        public UserService(JHDataAccessContext context, ILogger<UserService> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task<ResponseModel> AddUser(User user)
+        {
+            string message = string.Empty;
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // var sender = await _context.UserAccounts.FindAsync(transaction.FromUserId);
+                var presentUser = await _context.Users.FindAsync(user.UserId);
+
+                if (presentUser == null)
+                {
+                    user.IsActive = true;
+                    _context.Users.Add(user);
+                    message = "User Added";
+                }
+                else
+                {
+                    var updateUser = new User
+                    {
+                        BankName = presentUser.BankName,
+                        Branch = presentUser.Branch,
+                        CVV = presentUser.CVV,
+                        DateOfExpiry = presentUser.DateOfExpiry,
+                        Email = presentUser.Email,
+                        FirstName = presentUser.FirstName,
+                        LastName = presentUser.LastName,
+                        IFCCode = presentUser.IFCCode,
+                        Mobile = presentUser.Mobile,
+                        UPIID = presentUser.UPIID
+                    };
+
+                    _context.Users.Update(updateUser);
+                    message = "User Updated";
+                }
+
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return await Task.FromResult(ResponseModel.Ok(message));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                tx.Rollback();
+                throw;
+            }
+        }
+
+        public async Task<ResponseModel> DeactivateUser(long userId)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var presentUser = await _context.Users.FindAsync(userId);
+
+                if (presentUser != null)
+                {
+                    presentUser.IsActive = false;
+                    _context.Users.Update(presentUser);
+                }
+
+                await _context.SaveChangesAsync();
+
+                await tx.CommitAsync();
+
+                return await Task.FromResult(ResponseModel.Ok("Deactivated"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                tx.Rollback();
+                throw;
+            }
+        }
+
+        public async Task<ResponseModel> GetUser(long userId)
+        {
+            try
+            {
+                var presentUser = await _context.Users.FindAsync(userId);
+
+                if (presentUser == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                return await Task.FromResult(ResponseModel.Ok(presentUser, "Success"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
+    }
+}

@@ -1,0 +1,41 @@
+﻿using jh_payment_database.Entity;
+using jh_payment_database.Model;
+using jh_payment_database.Service;
+using Microsoft.AspNetCore.Mvc;
+
+namespace jh_payment_database.Controllers
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/perops/[Controller]")]
+    public class PaymentController : Controller
+    {
+        private readonly TransactionService _transactionService;
+
+        public PaymentController(TransactionService transactionService)
+        {
+            _transactionService = transactionService;
+        }
+
+        [HttpPost("credit")]
+        public async Task<ResponseModel> CreditFund(Transaction transaction)
+        {
+            return await _transactionService.CreditFund(transaction);
+        }
+
+        [HttpDelete("debit/{userId}")]
+        public async Task<ResponseModel> DebitFund(Transaction transaction)
+        {
+            return await _transactionService.DebitFund(transaction);
+        }
+
+        [HttpGet("refund")]
+        public async Task<ResponseModel> TransferFund(long senderId, long receiverId, decimal amount)
+        {
+            return await _transactionService.TransferAsync(senderId, receiverId, amount);
+        }
+    }
+}
