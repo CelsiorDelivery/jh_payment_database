@@ -108,5 +108,25 @@ namespace jh_payment_database.Service
                 throw;
             }
         }
+
+        public async Task<ResponseModel> GetAllUser()
+        {
+            try
+            {
+                var presentUser = _context.Users.Where(x => x.UserId > 0).ToList<User>();
+
+                if (presentUser == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                return await Task.FromResult(ResponseModel.Ok(presentUser, "Success"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
     }
 }

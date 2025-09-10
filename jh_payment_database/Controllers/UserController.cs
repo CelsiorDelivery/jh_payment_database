@@ -37,5 +37,11 @@ namespace jh_payment_database.Controllers
         {
             return await _userService.GetUser(userId);
         }
+
+        [HttpGet("getall")]
+        public async Task<ResponseModel> GetAllUser()
+        {
+            return await _userService.GetAllUser();
+        }
     }
 }
