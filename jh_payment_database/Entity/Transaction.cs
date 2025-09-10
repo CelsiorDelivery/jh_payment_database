@@ -1,9 +1,11 @@
 ﻿using jh_payment_database.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace jh_payment_database.Entity
 {
     public class Transaction
     {
+        [Key]
         public Guid TransactionId { get; set; }
         public Guid PaymentId { get; set; }
         public long FromUserId { get; set; }
@@ -13,7 +15,7 @@ namespace jh_payment_database.Entity
         public PaymentMethodType Type { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public static Transaction GetTransaction(PaymentRequest paymentRequest, PaymentStatus paymentStatus)
+        public static Transaction GetTransaction(PaymentRequest paymentRequest, PaymentStatus paymentStatus = PaymentStatus.Success)
         {
             return new Transaction
             {

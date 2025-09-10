@@ -38,10 +38,10 @@ namespace jh_payment_database.Controllers
             return await _transactionService.TransferAsync(paymentRequest);
         }
 
-        [HttpPost("refund")]
-        public async Task<ResponseModel> ReFund([FromBody] PaymentRequest paymentRequest)
+        [HttpGet("refund/{userId}/{transactionId}")]
+        public async Task<ResponseModel> ReFund([FromRoute]long userId, [FromRoute]string transactionId)
         {
-            return await _transactionService.ReFund(paymentRequest);
+            return await _transactionService.ReFund(userId, transactionId);
         }
 
         [HttpGet("checkbalance/{userId}")]

@@ -12,15 +12,15 @@ namespace jh_payment_database.Entity
         public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public static Payment GetPayment(PaymentRequest paymentRequest)
+        public static Payment GetPayment(PaymentRequest paymentRequest, PaymentStatus paymentStatus = PaymentStatus.Success)
         {
             return new Payment
             {
                 SenderUserId = paymentRequest.SenderUserId,
                 ReceiverUserId = paymentRequest.ReceiverUserId,
                 Amount = paymentRequest.Amount,
-                Method = PaymentMethodType.Wallet,
-                Status = PaymentStatus.Success,
+                Method = paymentRequest.PaymentMethod,
+                Status = paymentStatus,
                 CreatedAt = DateTime.UtcNow,
                 PaymentId = Guid.NewGuid()
             };

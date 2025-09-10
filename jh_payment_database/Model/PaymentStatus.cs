@@ -7,6 +7,7 @@
         Failed = 3,
         Cancelled = 4,
         Credited = 5,
-        Debited = 6
+        Debited = 6,
+        Refund = 7
     }
 }

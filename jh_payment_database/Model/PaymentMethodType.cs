@@ -5,6 +5,7 @@
         Card = 1,
         UPI = 2,
         NetBanking = 3,
-        Wallet = 4
+        Wallet = 4,
+        System = 0
     }
 }

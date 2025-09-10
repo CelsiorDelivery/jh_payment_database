@@ -111,15 +111,15 @@ namespace jh_payment_database.Service
 
         public async Task<ResponseModel> GetTransactionDetails(long userId, PageRequestModel pageRequestModel)
         {
-            var transactions = _context.TransactionInformations
-                .Where(x => x.UserId.Equals(userId))
-                .OrderByDescending(x => x.AddedOn)
+            var transactions = _context.Transactions
+                .Where(x => x.FromUserId.Equals(userId))
+                .OrderByDescending(x => x.CreatedAt)
                 .Skip(pageRequestModel.PageSize * (pageRequestModel.PageNumber - 1))
                 .Take(pageRequestModel.PageSize)
-                .ToList<TransactionInformation>();
+                .ToList<Transaction>();
 
             if (transactions == null)
-                return ResponseModel.Ok(new List<TransactionInformation> { }, "No record found");
+                return ResponseModel.Ok(new List<Transaction> { }, "No record found");
 
             return await Task.FromResult(ResponseModel.Ok(transactions, "Success"));
         }
@@ -154,26 +154,34 @@ namespace jh_payment_database.Service
             return ResponseModel.Ok("Transfered successfully");
         }
 
-        public async Task<ResponseModel> ReFund(PaymentRequest paymentRequest)
+        public async Task<ResponseModel> ReFund(long userId, string transactionId)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
 
-            var sender = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
-            var receiver = await _context.UserAccounts.FindAsync(paymentRequest.ReceiverUserId);
+            var userAccount = await _context.UserAccounts.FindAsync(userId);
 
-            if (sender == null || receiver == null)
+            Guid.TryParse(transactionId, out Guid transactionGuid);
+            var transactionDetail = await _context.Transactions.FindAsync(transactionGuid);
+
+            if (userAccount == null)
                 return ResponseModel.BadRequest("User not found");
 
-            if (sender.Balance < paymentRequest.Amount)
-                return ResponseModel.BadRequest("Insufficient balance");
+            if (transactionDetail == null)
+                return ResponseModel.BadRequest("Invalid transaction id used");
 
-            sender.Balance -= paymentRequest.Amount;
-            receiver.Balance += paymentRequest.Amount;
+            userAccount.Balance += transactionDetail.Amount;
+            _context.UserAccounts.Update(userAccount);
 
-            var payment = Payment.GetPayment(paymentRequest);
-            _context.Payments.Add(payment);
+            transactionDetail.TrasactionStatus = PaymentStatus.Refund;
+            _context.Transactions.Update(transactionDetail);
 
-            var txCredit = Transaction.GetTransaction(paymentRequest, PaymentStatus.Debited);
+            var txCredit = Transaction.GetTransaction(new PaymentRequest
+            {
+                SenderUserId = userId,
+                ReceiverUserId = 0,
+                Amount = transactionDetail.Amount,
+                PaymentMethod = PaymentMethodType.System
+            }, PaymentStatus.Refund);
 
             _context.Transactions.AddRange(txCredit);
 
