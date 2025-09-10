@@ -27,7 +27,7 @@ namespace jh_payment_database.Service
 
                 if (receiver == null)
                 {
-                    receiver = GetAccount(user, paymentRequest);
+                    receiver = UserAccount.GetUserAccount(user, paymentRequest);
                     _context.UserAccounts.Add(receiver);
                 }
                 else
@@ -37,7 +37,7 @@ namespace jh_payment_database.Service
                 }
 
                 // Add transaction
-                var transaction = Transaction.GetTransaction(paymentRequest);
+                var transaction = Transaction.GetTransaction(paymentRequest, PaymentStatus.Debited);
                 _context.Transactions.Add(transaction);
 
                 // Add transactioninformation
@@ -57,18 +57,6 @@ namespace jh_payment_database.Service
             }
         }
 
-        public UserAccount GetAccount(User user, PaymentRequest paymentRequest)
-        {
-            return new UserAccount
-            {
-                Balance = paymentRequest.Amount,
-                Email = user.Email,
-                FullName = string.Concat(user.FirstName, "", user.LastName),
-                MobileNumber = user.Mobile,
-                UserId = user.UserId
-            };
-        }
-
         public async Task<ResponseModel> DebitFund(PaymentRequest paymentRequest)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
@@ -83,9 +71,9 @@ namespace jh_payment_database.Service
                 receiver.Balance -= paymentRequest.Amount;
                 _context.UserAccounts.Update(receiver);
 
-                
+
                 // Add transaction
-                var transaction = Transaction.GetTransaction(paymentRequest);
+                var transaction = Transaction.GetTransaction(paymentRequest, PaymentStatus.Debited);
                 _context.Transactions.Add(transaction);
 
                 await _context.SaveChangesAsync();
@@ -121,29 +109,73 @@ namespace jh_payment_database.Service
             }
         }
 
-        public async Task<ResponseModel> TransferAsync(long senderId, long receiverId, decimal amount)
+        public async Task<ResponseModel> GetTransactionDetails(long userId, PageRequestModel pageRequestModel)
+        {
+            var transactions = _context.TransactionInformations
+                .Where(x => x.UserId.Equals(userId))
+                .OrderByDescending(x => x.AddedOn)
+                .Skip(pageRequestModel.PageSize * (pageRequestModel.PageNumber - 1))
+                .Take(pageRequestModel.PageSize)
+                .ToList<TransactionInformation>();
+
+            if (transactions == null)
+                return ResponseModel.Ok(new List<TransactionInformation> { }, "No record found");
+
+            return await Task.FromResult(ResponseModel.Ok(transactions, "Success"));
+        }
+
+        public async Task<ResponseModel> TransferAsync(PaymentRequest paymentRequest)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
 
-            var sender = await _context.UserAccounts.FindAsync(senderId);
-            var receiver = await _context.UserAccounts.FindAsync(receiverId);
+            var sender = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
+            var receiver = await _context.UserAccounts.FindAsync(paymentRequest.ReceiverUserId);
 
             if (sender == null || receiver == null)
                 return ResponseModel.BadRequest("User not found");
 
-            if (sender.Balance < amount)
+            if (sender.Balance < paymentRequest.Amount)
                 return ResponseModel.BadRequest("Insufficient balance");
 
-            sender.Balance -= amount;
-            receiver.Balance += amount;
+            sender.Balance -= paymentRequest.Amount;
+            receiver.Balance += paymentRequest.Amount;
 
-            var payment = new Payment { SenderUserId = senderId, ReceiverUserId = receiverId, Amount = amount, Method = PaymentMethodType.Wallet, Status = PaymentStatus.Success };
+            var payment = Payment.GetPayment(paymentRequest);
             _context.Payments.Add(payment);
 
-            var txDebit = new Transaction { PaymentId = payment.PaymentId, FromUserId = senderId, ToUserId = receiverId, Amount = amount, Type = PaymentMethodType.Card };
-            var txCredit = new Transaction { PaymentId = payment.PaymentId, FromUserId = senderId, ToUserId = receiverId, Amount = amount, Type = PaymentMethodType.Card };
+            var txDebit = Transaction.GetTransaction(paymentRequest, PaymentStatus.Debited);
+            var txCredit = Transaction.GetTransaction(paymentRequest, PaymentStatus.Credited);
 
             _context.Transactions.AddRange(txDebit, txCredit);
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return ResponseModel.Ok("Transfered successfully");
+        }
+
+        public async Task<ResponseModel> ReFund(PaymentRequest paymentRequest)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+
+            var sender = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
+            var receiver = await _context.UserAccounts.FindAsync(paymentRequest.ReceiverUserId);
+
+            if (sender == null || receiver == null)
+                return ResponseModel.BadRequest("User not found");
+
+            if (sender.Balance < paymentRequest.Amount)
+                return ResponseModel.BadRequest("Insufficient balance");
+
+            sender.Balance -= paymentRequest.Amount;
+            receiver.Balance += paymentRequest.Amount;
+
+            var payment = Payment.GetPayment(paymentRequest);
+            _context.Payments.Add(payment);
+
+            var txCredit = Transaction.GetTransaction(paymentRequest, PaymentStatus.Debited);
+
+            _context.Transactions.AddRange(txCredit);
 
             await _context.SaveChangesAsync();
             await tx.CommitAsync();

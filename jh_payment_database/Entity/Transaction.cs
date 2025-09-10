@@ -9,10 +9,11 @@ namespace jh_payment_database.Entity
         public long FromUserId { get; set; }
         public long ToUserId { get; set; }
         public decimal Amount { get; set; }
+        public PaymentStatus TrasactionStatus { get; set; } = PaymentStatus.Success;
         public PaymentMethodType Type { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public static Transaction GetTransaction(PaymentRequest paymentRequest)
+        public static Transaction GetTransaction(PaymentRequest paymentRequest, PaymentStatus paymentStatus)
         {
             return new Transaction
             {
@@ -22,7 +23,8 @@ namespace jh_payment_database.Entity
                 PaymentId = Guid.NewGuid(),
                 ToUserId = paymentRequest.ReceiverUserId,
                 TransactionId = Guid.NewGuid(),
-                Type = paymentRequest.PaymentMethod
+                Type = paymentRequest.PaymentMethod,
+                TrasactionStatus = paymentStatus
             };
         }
     }

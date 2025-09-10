@@ -32,16 +32,28 @@ namespace jh_payment_database.Controllers
             return await _transactionService.DebitFund(paymentRequest);
         }
 
-        [HttpGet("refund")]
-        public async Task<ResponseModel> TransferFund(long senderId, long receiverId, decimal amount)
+        [HttpPut("transfer")]
+        public async Task<ResponseModel> TransferFund([FromBody]PaymentRequest paymentRequest)
         {
-            return await _transactionService.TransferAsync(senderId, receiverId, amount);
+            return await _transactionService.TransferAsync(paymentRequest);
+        }
+
+        [HttpPost("refund")]
+        public async Task<ResponseModel> ReFund([FromBody] PaymentRequest paymentRequest)
+        {
+            return await _transactionService.ReFund(paymentRequest);
         }
 
         [HttpGet("checkbalance/{userId}")]
         public async Task<ResponseModel> CheckBalance([FromRoute] long userId)
         {
             return await _transactionService.CheckBalance(userId);
+        }
+
+        [HttpPut("transaction/{userId}")]
+        public async Task<ResponseModel> GetTransactionDetail([FromRoute] long userId, [FromBody] PageRequestModel pageRequestModel)
+        {
+            return await _transactionService.GetTransactionDetails(userId, pageRequestModel);
         }
     }
 }
