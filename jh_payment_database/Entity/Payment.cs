@@ -4,7 +4,7 @@ namespace jh_payment_database.Entity
 {
     public class Payment
     {
-        public long PaymentId { get; set; }
+        public Guid PaymentId { get; set; }
         public long SenderUserId { get; set; }
         public long ReceiverUserId { get; set; }
         public decimal Amount { get; set; }

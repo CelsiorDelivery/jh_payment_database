@@ -11,6 +11,7 @@ namespace jh_payment_database.DatabaseContext
         public DbSet<User> Users => Set<User>();
         public DbSet<Payment> Payments => Set<Payment>();
         public DbSet<Transaction> Transactions => Set<Transaction>();
+        public DbSet<TransactionInformation> TransactionInformations => Set<TransactionInformation>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +30,9 @@ namespace jh_payment_database.DatabaseContext
             // enable foreign keys (EF ensures referential shapes in migrations)
             modelBuilder.Entity<Payment>()
                 .HasIndex(p => p.CreatedAt);
+
+            modelBuilder.Entity<TransactionInformation>()
+                .HasIndex(p => p.TransactionId);
         }
     }
 }

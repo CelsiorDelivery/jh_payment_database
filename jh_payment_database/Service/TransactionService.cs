@@ -14,32 +14,34 @@ namespace jh_payment_database.Service
             _logger = logger;
         }
 
-        public async Task<ResponseModel> CreditFund(Transaction transaction)
+        public async Task<ResponseModel> CreditFund(PaymentRequest paymentRequest)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
-                var user = await _context.Users.FindAsync(transaction.FromUserId);
+                var user = await _context.Users.FindAsync(paymentRequest.SenderUserId);
                 if (user == null)
                     return ResponseModel.BadRequest("User not found");
 
-                var receiver = await _context.UserAccounts.FindAsync(transaction.FromUserId);
+                var receiver = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
 
                 if (receiver == null)
                 {
-                    receiver = GetAccount(user, transaction);
+                    receiver = GetAccount(user, paymentRequest);
                     _context.UserAccounts.Add(receiver);
                 }
                 else
                 {
-                    receiver.Balance += transaction.Amount;
+                    receiver.Balance += paymentRequest.Amount;
                     _context.UserAccounts.Update(receiver);
                 }
 
-
-                transaction.TransactionId = DateTime.Now.Ticks;
-                transaction.PaymentId = DateTime.Now.Ticks;
+                // Add transaction
+                var transaction = Transaction.GetTransaction(paymentRequest);
                 _context.Transactions.Add(transaction);
+
+                // Add transactioninformation
+                _context.TransactionInformations.Add(TransactionInformation.GetTransactionInformation(paymentRequest));
 
                 await _context.SaveChangesAsync();
 
@@ -55,11 +57,11 @@ namespace jh_payment_database.Service
             }
         }
 
-        public UserAccount GetAccount(User user, Transaction transaction)
+        public UserAccount GetAccount(User user, PaymentRequest paymentRequest)
         {
             return new UserAccount
             {
-                Balance = transaction.Amount,
+                Balance = paymentRequest.Amount,
                 Email = user.Email,
                 FullName = string.Concat(user.FirstName, "", user.LastName),
                 MobileNumber = user.Mobile,
@@ -67,22 +69,23 @@ namespace jh_payment_database.Service
             };
         }
 
-        public async Task<ResponseModel> DebitFund(Transaction transaction)
+        public async Task<ResponseModel> DebitFund(PaymentRequest paymentRequest)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
                 // var sender = await _context.UserAccounts.FindAsync(transaction.FromUserId);
-                var receiver = await _context.UserAccounts.FindAsync(transaction.ToUserId);
+                var receiver = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
 
                 if (receiver == null)
                     return ResponseModel.BadRequest("User not found");
 
-                receiver.Balance -= transaction.Amount;
+                receiver.Balance -= paymentRequest.Amount;
                 _context.UserAccounts.Update(receiver);
 
-                transaction.TransactionId = DateTime.Now.Ticks;
-                transaction.PaymentId = DateTime.Now.Ticks;
+                
+                // Add transaction
+                var transaction = Transaction.GetTransaction(paymentRequest);
                 _context.Transactions.Add(transaction);
 
                 await _context.SaveChangesAsync();
@@ -137,8 +140,8 @@ namespace jh_payment_database.Service
             var payment = new Payment { SenderUserId = senderId, ReceiverUserId = receiverId, Amount = amount, Method = PaymentMethodType.Wallet, Status = PaymentStatus.Success };
             _context.Payments.Add(payment);
 
-            var txDebit = new Transaction { PaymentId = payment.PaymentId, FromUserId = senderId, ToUserId = receiverId, Amount = amount, Type = TransactionType.Debit };
-            var txCredit = new Transaction { PaymentId = payment.PaymentId, FromUserId = senderId, ToUserId = receiverId, Amount = amount, Type = TransactionType.Credit };
+            var txDebit = new Transaction { PaymentId = payment.PaymentId, FromUserId = senderId, ToUserId = receiverId, Amount = amount, Type = PaymentMethodType.Card };
+            var txCredit = new Transaction { PaymentId = payment.PaymentId, FromUserId = senderId, ToUserId = receiverId, Amount = amount, Type = PaymentMethodType.Card };
 
             _context.Transactions.AddRange(txDebit, txCredit);
 

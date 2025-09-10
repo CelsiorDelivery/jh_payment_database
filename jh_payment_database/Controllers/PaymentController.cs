@@ -21,15 +21,15 @@ namespace jh_payment_database.Controllers
         }
 
         [HttpPost("credit")]
-        public async Task<ResponseModel> CreditFund(Transaction transaction)
+        public async Task<ResponseModel> CreditFund(PaymentRequest paymentRequest)
         {
-            return await _transactionService.CreditFund(transaction);
+            return await _transactionService.CreditFund(paymentRequest);
         }
 
-        [HttpDelete("debit/{userId}")]
-        public async Task<ResponseModel> DebitFund(Transaction transaction)
+        [HttpPut("debit/{userId}")]
+        public async Task<ResponseModel> DebitFund(PaymentRequest paymentRequest)
         {
-            return await _transactionService.DebitFund(transaction);
+            return await _transactionService.DebitFund(paymentRequest);
         }
 
         [HttpGet("refund")]
@@ -38,8 +38,8 @@ namespace jh_payment_database.Controllers
             return await _transactionService.TransferAsync(senderId, receiverId, amount);
         }
 
-        [HttpGet("checkbalance")]
-        public async Task<ResponseModel> CheckBalance(long userId)
+        [HttpGet("checkbalance/{userId}")]
+        public async Task<ResponseModel> CheckBalance([FromRoute] long userId)
         {
             return await _transactionService.CheckBalance(userId);
         }
