@@ -27,7 +27,7 @@ namespace jh_payment_database.Controllers
         }
 
         [HttpPut("debit/{userId}")]
-        public async Task<ResponseModel> DebitFund(PaymentRequest paymentRequest)
+        public async Task<ResponseModel> DebitFund(DebitPaymentRequest paymentRequest)
         {
             return await _transactionService.DebitFund(paymentRequest);
         }
