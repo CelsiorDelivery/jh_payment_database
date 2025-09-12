@@ -11,6 +11,7 @@ namespace jh_payment_database.Entity
         public long FromUserId { get; set; }
         public long ToUserId { get; set; }
         public decimal Amount { get; set; }
+        public string? ProductId { get; set; } = null;
         public PaymentStatus TrasactionStatus { get; set; } = PaymentStatus.Success;
         public PaymentMethodType Type { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

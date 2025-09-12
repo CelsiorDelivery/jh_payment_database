@@ -37,7 +37,7 @@ namespace jh_payment_database.Service
                 }
 
                 // Add transaction
-                var transaction = Transaction.GetTransaction(paymentRequest, PaymentStatus.Debited);
+                var transaction = Transaction.GetTransaction(paymentRequest, PaymentStatus.Credited);
                 _context.Transactions.Add(transaction);
 
                 // Add transactioninformation
@@ -57,7 +57,7 @@ namespace jh_payment_database.Service
             }
         }
 
-        public async Task<ResponseModel> DebitFund(PaymentRequest paymentRequest)
+        public async Task<ResponseModel> DebitFund(DebitPaymentRequest paymentRequest)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
             try
@@ -74,6 +74,7 @@ namespace jh_payment_database.Service
 
                 // Add transaction
                 var transaction = Transaction.GetTransaction(paymentRequest, PaymentStatus.Debited);
+                transaction.ProductId = paymentRequest.ProductId;
                 _context.Transactions.Add(transaction);
 
                 await _context.SaveChangesAsync();
