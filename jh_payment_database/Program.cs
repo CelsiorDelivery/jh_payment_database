@@ -56,7 +56,7 @@ using (var scope = app.Services.CreateScope())
 
     if (!db.Database.CanConnect())
     {
-        db.Database.EnsureCreated();
+        db.Database.EnsureCreated();        
     }
 }
 
