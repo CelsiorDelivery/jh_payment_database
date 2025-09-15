@@ -89,11 +89,11 @@ namespace jh_payment_database.Service
             }
         }
 
-        public async Task<ResponseModel> GetUser(long userId)
+        public async Task<ResponseModel> GetUser(string email)
         {
             try
             {
-                var presentUser = await _context.Users.FindAsync(userId);
+                var presentUser = _context.Users.Where(x => x.Email.Equals(email)).FirstOrDefault();
 
                 if (presentUser == null)
                 {

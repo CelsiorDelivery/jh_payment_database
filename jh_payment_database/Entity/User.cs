@@ -19,6 +19,8 @@
         public string AccountNumber { set; get; }
         public string BankName { set; get; }
         public string IFCCode { set; get; }
+        public string BankCode { set; get; }
+        public string City { set; get; }
         public string Branch { set; get; }
         public string UPIID { set; get; }
         public string CVV { set; get; }
