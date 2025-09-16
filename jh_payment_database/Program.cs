@@ -25,6 +25,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<OperationService>();
 
 // Add API Versioning
 builder.Services.AddApiVersioning(options =>
@@ -46,7 +47,13 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<JHDataAccessContext>();
-   
+
+    var flag = builder.Configuration.GetSection("ReCreateDatabasae").Value;
+    if (flag != null && flag == "True")
+    {
+        db.Database.EnsureDeleted();
+    }
+
     if (!db.Database.CanConnect())
     {
         db.Database.EnsureCreated();        

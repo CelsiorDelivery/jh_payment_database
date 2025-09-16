@@ -1,6 +1,7 @@
 ﻿using jh_payment_database.DatabaseContext;
 using jh_payment_database.Entity;
 using jh_payment_database.Model;
+using Microsoft.AspNetCore.Mvc;
 
 namespace jh_payment_database.Service
 {
@@ -89,11 +90,11 @@ namespace jh_payment_database.Service
             }
         }
 
-        public async Task<ResponseModel> GetUser(long userId)
+        public async Task<ResponseModel> GetUser(string email)
         {
             try
             {
-                var presentUser = await _context.Users.FindAsync(userId);
+                var presentUser = _context.Users.Where(x => x.Email.Equals(email)).FirstOrDefault();
 
                 if (presentUser == null)
                 {
@@ -114,6 +115,30 @@ namespace jh_payment_database.Service
             try
             {
                 var presentUser = _context.Users.Where(x => x.UserId > 0).ToList<User>();
+
+                if (presentUser == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                return await Task.FromResult(ResponseModel.Ok(presentUser, "Success"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<ResponseModel> GetUserByPageAsync(int pageSize, int pageNumber, string searchString, string sortBy)
+        {
+            try
+            {
+                var presentUser = _context.Users
+                    .OrderBy(x => x.UserId)
+                    .Skip(pageSize * (pageNumber - 1))
+                    .Take(pageSize)
+                    .ToList<User>();
 
                 if (presentUser == null)
                 {

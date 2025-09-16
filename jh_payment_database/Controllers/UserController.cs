@@ -1,4 +1,5 @@
-﻿using jh_payment_database.Entity;
+﻿using jh_payment_auth.Models;
+using jh_payment_database.Entity;
 using jh_payment_database.Model;
 using jh_payment_database.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -32,16 +33,22 @@ namespace jh_payment_database.Controllers
             return await _userService.DeactivateUser(userId);
         }
 
-        [HttpGet("getuser/{userId}")]
-        public async Task<ResponseModel> GetUser([FromRoute] long userId)
+        [HttpPut("getuser")]
+        public async Task<ResponseModel> GetUser([FromBody] LoginRequest loginRequest)
         {
-            return await _userService.GetUser(userId);
+            return await _userService.GetUser(loginRequest.Email);
         }
 
         [HttpGet("getall")]
         public async Task<ResponseModel> GetAllUser()
         {
             return await _userService.GetAllUser();
+        }
+
+        [HttpGet("getuserbypage/{pageSize}/{pageNumber}/{searchString}/{sortBy}")]
+        public async Task<ResponseModel> GetUserByPage([FromRoute] int pageSize, [FromRoute] int pageNumber, [FromRoute] string searchString, [FromRoute] string sortBy)
+        {
+            return await _userService.GetUserByPageAsync(pageSize, pageNumber, searchString, sortBy);
         }
     }
 }
