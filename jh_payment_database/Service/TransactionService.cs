@@ -191,5 +191,43 @@ namespace jh_payment_database.Service
 
             return ResponseModel.Ok("Transfered successfully");
         }
+
+        public async Task<ResponseModel> PartialRefund(long userId, string transactionId)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+
+            var userAccount = await _context.UserAccounts.FindAsync(userId);
+
+            Guid.TryParse(transactionId, out Guid transactionGuid);
+            var transactionDetail = await _context.Transactions.FindAsync(transactionGuid);
+
+            if (userAccount == null)
+                return ResponseModel.BadRequest("User not found");
+
+            if (transactionDetail == null)
+                return ResponseModel.BadRequest("Invalid transaction id used");
+
+            var partialRefund = transactionDetail.Amount / 2;
+            userAccount.Balance += partialRefund;
+            _context.UserAccounts.Update(userAccount);
+
+            transactionDetail.TrasactionStatus = PaymentStatus.PartialRefund;
+            _context.Transactions.Update(transactionDetail);
+
+            var txCredit = Transaction.GetTransaction(new PaymentRequest
+            {
+                SenderUserId = userId,
+                ReceiverUserId = 0,
+                Amount = partialRefund,
+                PaymentMethod = PaymentMethodType.System
+            }, PaymentStatus.PartialRefund);
+
+            _context.Transactions.AddRange(txCredit);
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return ResponseModel.Ok("Transfered successfully");
+        }
     }
 }

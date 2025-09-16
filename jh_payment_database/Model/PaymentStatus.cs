@@ -8,6 +8,7 @@
         Cancelled = 4,
         Credited = 5,
         Debited = 6,
-        Refund = 7
+        Refund = 7,
+        PartialRefund = 8
     }
 }

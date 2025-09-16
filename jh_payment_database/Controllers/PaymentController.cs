@@ -1,5 +1,4 @@
-﻿using jh_payment_database.Entity;
-using jh_payment_database.Model;
+﻿using jh_payment_database.Model;
 using jh_payment_database.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,15 +32,21 @@ namespace jh_payment_database.Controllers
         }
 
         [HttpPut("transfer")]
-        public async Task<ResponseModel> TransferFund([FromBody]PaymentRequest paymentRequest)
+        public async Task<ResponseModel> TransferFund([FromBody] PaymentRequest paymentRequest)
         {
             return await _transactionService.TransferAsync(paymentRequest);
         }
 
-        [HttpGet("refund/{userId}/{transactionId}")]
-        public async Task<ResponseModel> ReFund([FromRoute]long userId, [FromRoute]string transactionId)
+        [HttpPut("refund/{userId}/{transactionId}")]
+        public async Task<ResponseModel> ReFund([FromRoute] long userId, [FromRoute] string transactionId)
         {
             return await _transactionService.ReFund(userId, transactionId);
+        }
+
+        [HttpPut("partial-refund/{userId}/{transactionId}")]
+        public async Task<ResponseModel> PartialRefund([FromRoute] long userId, [FromRoute] string transactionId)
+        {
+            return await _transactionService.PartialRefund(userId, transactionId);
         }
 
         [HttpGet("checkbalance/{userId}")]
