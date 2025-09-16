@@ -44,5 +44,11 @@ namespace jh_payment_database.Controllers
         {
             return await _userService.GetAllUser();
         }
+
+        [HttpGet("getuserbypage/{pageSize}/{pageNumber}/{searchString}/{sortBy}")]
+        public async Task<ResponseModel> GetUserByPage([FromRoute] int pageSize, [FromRoute] int pageNumber, [FromRoute] string searchString, [FromRoute] string sortBy)
+        {
+            return await _userService.GetUserByPageAsync(pageSize, pageNumber, searchString, sortBy);
+        }
     }
 }
