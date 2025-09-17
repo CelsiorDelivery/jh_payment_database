@@ -48,7 +48,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<JHDataAccessContext>();
 
-    var flag = builder.Configuration.GetSection("ReCreateDatabasae").Value;
+    var flag = builder.Configuration.GetSection("ReCreateDatabase").Value;
     if (flag != null && flag == "True")
     {
         db.Database.EnsureDeleted();

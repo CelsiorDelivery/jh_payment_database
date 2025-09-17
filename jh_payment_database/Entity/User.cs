@@ -33,6 +33,6 @@
     {
         User,
         Admin,
-        Murchant
+        Merchant
     }
 }
