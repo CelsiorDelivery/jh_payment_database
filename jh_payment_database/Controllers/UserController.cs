@@ -33,10 +33,10 @@ namespace jh_payment_database.Controllers
             return await _userService.DeactivateUser(userId);
         }
 
-        [HttpPut("getuser")]
-        public async Task<ResponseModel> GetUser([FromBody] LoginRequest loginRequest)
+        [HttpGet("getuser/{email}")]
+        public async Task<ResponseModel> GetUser([FromRoute] string email)
         {
-            return await _userService.GetUser(loginRequest.Email);
+            return await _userService.GetUser(email);
         }
 
         [HttpGet("getall")]
