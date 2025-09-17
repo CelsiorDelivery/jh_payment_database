@@ -25,5 +25,19 @@ namespace jh_payment_database.Entity
                 PaymentId = Guid.NewGuid()
             };
         }
+
+        public static Payment GetCardPayment(CardPaymentRequest paymentRequest, PaymentStatus paymentStatus = PaymentStatus.Success)
+        {
+            return new Payment
+            {
+                SenderUserId = paymentRequest.SenderUserId,
+                ReceiverUserId = paymentRequest.ReceiverUserId,
+                Amount = paymentRequest.Amount,
+                Method = paymentRequest.PaymentMethod,
+                Status = paymentStatus,
+                CreatedAt = DateTime.UtcNow,
+                PaymentId = Guid.NewGuid()
+            };
+        }
     }
 }
