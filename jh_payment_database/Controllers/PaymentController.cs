@@ -37,6 +37,12 @@ namespace jh_payment_database.Controllers
             return await _transactionService.TransferAsync(paymentRequest);
         }
 
+        [HttpPut("transfer/card")]
+        public async Task<ResponseModel> TransferCardFund([FromBody] CardPaymentRequest paymentRequest)
+        {
+            return await _transactionService.TransferCardAsync(paymentRequest);
+        }
+
         [HttpPut("refund/{userId}/{transactionId}")]
         public async Task<ResponseModel> ReFund([FromRoute] long userId, [FromRoute] string transactionId)
         {

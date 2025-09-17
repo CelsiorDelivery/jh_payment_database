@@ -43,7 +43,7 @@ namespace jh_payment_database.Service
                         LastName = presentUser.LastName,
                         IFCCode = presentUser.IFCCode,
                         Mobile = presentUser.Mobile,
-                        UPIID = presentUser.UPIID
+                        UPIID = presentUser.UPIID,
                     };
 
                     _context.Users.Update(updateUser);

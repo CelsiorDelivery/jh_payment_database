@@ -25,6 +25,14 @@
         public string UPIID { set; get; }
         public string CVV { set; get; }
         public bool IsActive { set; get; }
+        public Roles Role { set; get; } = Roles.User;
         public DateTime DateOfExpiry { set; get; }
+    }
+
+    public enum Roles
+    {
+        User,
+        Admin,
+        Merchant
     }
 }
