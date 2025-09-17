@@ -155,6 +155,44 @@ namespace jh_payment_database.Service
             return ResponseModel.Ok("Transfered successfully");
         }
 
+        public async Task<ResponseModel> TransferCardAsync(CardPaymentRequest paymentRequest)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+
+            var sender = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
+            var receiver = await _context.UserAccounts.FindAsync(paymentRequest.ReceiverUserId);
+
+            if (sender == null || receiver == null)
+                return ResponseModel.BadRequest("User not found");
+
+            if (sender.Balance < paymentRequest.Amount)
+                return ResponseModel.BadRequest("Insufficient balance");
+
+
+            if (paymentRequest.Amount <= 0)
+            {
+                return ResponseModel.BadRequest("Amount must be greater than zero");
+            }
+            if (paymentRequest.CardDetails.CardNumber == paymentRequest.ReceiverCardNumber)
+            {
+                return ResponseModel.BadRequest("Sender and receiver can't be same");
+            }
+
+            sender.Balance -= paymentRequest.Amount;
+
+            var payment = Payment.GetCardPayment(paymentRequest);
+            _context.Payments.Add(payment);
+
+            var txDebit = Transaction.GetTransaction(paymentRequest, PaymentStatus.Debited);
+
+            _context.Transactions.AddRange(txDebit);
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return ResponseModel.Ok("Transfered successfully");
+        }
+
         public async Task<ResponseModel> ReFund(long userId, string transactionId)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
