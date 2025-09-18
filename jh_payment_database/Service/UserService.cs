@@ -153,5 +153,45 @@ namespace jh_payment_database.Service
                 throw;
             }
         }
+
+        public async Task<ResponseModel> UpdateUser(User user)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var presentUser = await _context.Users.FindAsync(user.UserId);
+                if (presentUser != null && presentUser.AccountNumber == user.AccountNumber)
+                {
+                    presentUser.BankName = user.BankName;
+                    presentUser.BankCode = user.BankCode;
+                    presentUser.Branch = user.Branch;
+                    presentUser.CVV = user.CVV;
+                    presentUser.DateOfExpiry = user.DateOfExpiry;
+                    presentUser.Email = user.Email;
+                    presentUser.FirstName = user.FirstName;
+                    presentUser.LastName = user.LastName;
+                    presentUser.IFCCode = user.IFCCode;
+                    presentUser.Mobile = user.Mobile;
+                    presentUser.UPIID = user.UPIID;
+                    presentUser.City = user.City;
+
+                    _context.Users.Update(presentUser);
+
+                    await _context.SaveChangesAsync();
+                    await tx.CommitAsync();
+                    return await Task.FromResult(ResponseModel.Ok("Updated"));
+                }
+                else
+                {
+                    return ResponseModel.BadRequest("User not found with the UserId and AccountNumber.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                tx.Rollback();
+                throw;
+            }
+        }
     }
 }
