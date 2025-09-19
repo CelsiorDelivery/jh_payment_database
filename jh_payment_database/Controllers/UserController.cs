@@ -39,6 +39,12 @@ namespace jh_payment_database.Controllers
             return await _userService.GetUser(email);
         }
 
+        [HttpPut("updateuser")]
+        public async Task<ResponseModel> UpdateUser(User user)
+        {
+            return await _userService.UpdateUser(user);
+        }
+
         [HttpGet("getall")]
         public async Task<ResponseModel> GetAllUser()
         {

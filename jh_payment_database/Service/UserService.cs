@@ -94,7 +94,15 @@ namespace jh_payment_database.Service
         {
             try
             {
-                var presentUser = _context.Users.Where(x => x.Email.Equals(email)).FirstOrDefault();
+                User presentUser = null;
+                if (long.TryParse(email, out var id))
+                {
+                    presentUser = _context.Users.Where(x => x.UserId.Equals(id)).FirstOrDefault();
+                }
+                else
+                {
+                    presentUser = _context.Users.Where(x => x.Email.Equals(email)).FirstOrDefault();
+                }
 
                 if (presentUser == null)
                 {
@@ -150,6 +158,46 @@ namespace jh_payment_database.Service
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
+                throw;
+            }
+        }
+
+        public async Task<ResponseModel> UpdateUser(User user)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var presentUser = await _context.Users.FindAsync(user.UserId);
+                if (presentUser != null && presentUser.AccountNumber == user.AccountNumber)
+                {
+                    presentUser.BankName = user.BankName;
+                    presentUser.BankCode = user.BankCode;
+                    presentUser.Branch = user.Branch;
+                    presentUser.CVV = user.CVV;
+                    presentUser.DateOfExpiry = user.DateOfExpiry;
+                    presentUser.Email = user.Email;
+                    presentUser.FirstName = user.FirstName;
+                    presentUser.LastName = user.LastName;
+                    presentUser.IFCCode = user.IFCCode;
+                    presentUser.Mobile = user.Mobile;
+                    presentUser.UPIID = user.UPIID;
+                    presentUser.City = user.City;
+
+                    _context.Users.Update(presentUser);
+
+                    await _context.SaveChangesAsync();
+                    await tx.CommitAsync();
+                    return await Task.FromResult(ResponseModel.Ok("Updated"));
+                }
+                else
+                {
+                    return ResponseModel.BadRequest("User not found with the UserId and AccountNumber.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                tx.Rollback();
                 throw;
             }
         }
