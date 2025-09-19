@@ -94,7 +94,15 @@ namespace jh_payment_database.Service
         {
             try
             {
-                var presentUser = _context.Users.Where(x => x.Email.Equals(email)).FirstOrDefault();
+                User presentUser = null;
+                if (long.TryParse(email, out var id))
+                {
+                    presentUser = _context.Users.Where(x => x.UserId.Equals(id)).FirstOrDefault();
+                }
+                else
+                {
+                    presentUser = _context.Users.Where(x => x.Email.Equals(email)).FirstOrDefault();
+                }
 
                 if (presentUser == null)
                 {
