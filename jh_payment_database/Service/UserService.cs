@@ -28,6 +28,18 @@ namespace jh_payment_database.Service
                 {
                     user.IsActive = true;
                     _context.Users.Add(user);
+
+                    var userAccount = new UserAccount
+                    {
+                        Balance = 0,
+                        Email = user.Email,
+                        FullName = string.Concat(user.FirstName, "", user.LastName),
+                        MobileNumber = user.Mobile,
+                        UserId = user.UserId
+                    };
+
+                    _context.UserAccounts.Add(userAccount);
+
                     message = "User Added";
                 }
                 else

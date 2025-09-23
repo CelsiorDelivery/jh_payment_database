@@ -2,9 +2,9 @@
 {
     public class PageRequestModel
     {
-        public int PageSize { get; set; }
-        public int PageNumber { get; set; }
-        public string QueryString { get; set; }
-        public string SortBy { get; set; }
+        public int PageSize { get; set; } = 20;
+        public int PageNumber { get; set; } = 1;
+        public string QueryString { get; set; } = string.Empty;
+        public string SortBy { get; set; } = string.Empty;
     }
 }

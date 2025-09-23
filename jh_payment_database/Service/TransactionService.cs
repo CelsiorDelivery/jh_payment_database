@@ -112,9 +112,10 @@ namespace jh_payment_database.Service
 
         public async Task<ResponseModel> GetTransactionDetails(long userId, PageRequestModel pageRequestModel)
         {
+            var orderBy = string.IsNullOrEmpty(pageRequestModel.SortBy) ? "CreatedDate" : pageRequestModel.SortBy;
             var transactions = _context.Transactions
                 .Where(x => x.FromUserId.Equals(userId))
-                .OrderByDescending(x => x.CreatedAt)
+                .OrderByDescending(x => orderBy)
                 .Skip(pageRequestModel.PageSize * (pageRequestModel.PageNumber - 1))
                 .Take(pageRequestModel.PageSize)
                 .ToList<Transaction>();
