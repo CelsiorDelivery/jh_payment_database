@@ -31,7 +31,7 @@ namespace jh_payment_database.Service
 
                     var userAccount = new UserAccount
                     {
-                        Balance = 0,
+                        Balance = user.Balance,
                         Email = user.Email,
                         FullName = string.Concat(user.FirstName, "", user.LastName),
                         MobileNumber = user.Mobile,
@@ -120,6 +120,10 @@ namespace jh_payment_database.Service
                 {
                     throw new Exception("User not found");
                 }
+                var userAccount = await _context.UserAccounts.FindAsync(presentUser.UserId);
+
+                if (userAccount != null) 
+                    presentUser.Balance = userAccount.Balance;
 
                 return await Task.FromResult(ResponseModel.Ok(presentUser, "Success"));
             }

@@ -30,6 +30,7 @@
         public bool IsActive { set; get; }
         public Roles Role { set; get; } = Roles.User;
         public DateTime DateOfExpiry { set; get; }
+        public decimal Balance { set; get; }
     }
 
     public enum Roles
