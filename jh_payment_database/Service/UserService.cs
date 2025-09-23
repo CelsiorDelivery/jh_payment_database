@@ -28,6 +28,18 @@ namespace jh_payment_database.Service
                 {
                     user.IsActive = true;
                     _context.Users.Add(user);
+
+                    var userAccount = new UserAccount
+                    {
+                        Balance = user.Balance,
+                        Email = user.Email,
+                        FullName = string.Concat(user.FirstName, "", user.LastName),
+                        MobileNumber = user.Mobile,
+                        UserId = user.UserId
+                    };
+
+                    _context.UserAccounts.Add(userAccount);
+
                     message = "User Added";
                 }
                 else
@@ -108,6 +120,10 @@ namespace jh_payment_database.Service
                 {
                     throw new Exception("User not found");
                 }
+                var userAccount = await _context.UserAccounts.FindAsync(presentUser.UserId);
+
+                if (userAccount != null) 
+                    presentUser.Balance = userAccount.Balance;
 
                 return await Task.FromResult(ResponseModel.Ok(presentUser, "Success"));
             }

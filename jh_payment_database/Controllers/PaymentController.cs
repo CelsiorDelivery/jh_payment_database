@@ -31,13 +31,13 @@ namespace jh_payment_database.Controllers
             return await _transactionService.DebitFund(paymentRequest);
         }
 
-        [HttpPut("transfer")]
+        [HttpPost("transfer")]
         public async Task<ResponseModel> TransferFund([FromBody] PaymentRequest paymentRequest)
         {
             return await _transactionService.TransferAsync(paymentRequest);
         }
 
-        [HttpPut("transfer/card")]
+        [HttpPost("transfer/card")]
         public async Task<ResponseModel> TransferCardFund([FromBody] CardPaymentRequest paymentRequest)
         {
             return await _transactionService.TransferCardAsync(paymentRequest);
@@ -61,8 +61,8 @@ namespace jh_payment_database.Controllers
             return await _transactionService.CheckBalance(userId);
         }
 
-        [HttpPut("transaction/{userId}")]
-        public async Task<ResponseModel> GetTransactionDetail([FromRoute] long userId, [FromBody] PageRequestModel pageRequestModel)
+        [HttpGet("transaction/{userId}")]
+        public async Task<ResponseModel> GetTransactionDetail([FromRoute] long userId, [FromQuery] PageRequestModel pageRequestModel)
         {
             return await _transactionService.GetTransactionDetails(userId, pageRequestModel);
         }
