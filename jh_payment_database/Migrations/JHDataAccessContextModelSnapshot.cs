@@ -32,11 +32,11 @@ namespace jh_payment_database.Migrations
                     b.Property<int>("Method")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("ReceiverUserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ReceiverUserId")
+                        .HasColumnType("TEXT");
 
-                    b.Property<long>("SenderUserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("SenderUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
@@ -60,14 +60,14 @@ namespace jh_payment_database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("FromUserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("FromUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("ToUserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ToUserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("TrasactionStatus")
                         .HasColumnType("INTEGER");
@@ -121,8 +121,8 @@ namespace jh_payment_database.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("UserId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Vpa")
                         .IsRequired()
@@ -137,9 +137,9 @@ namespace jh_payment_database.Migrations
 
             modelBuilder.Entity("jh_payment_database.Entity.User", b =>
                 {
-                    b.Property<long>("UserId")
+                    b.Property<string>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("AccountNumber")
                         .IsRequired()
@@ -194,9 +194,9 @@ namespace jh_payment_database.Migrations
 
             modelBuilder.Entity("jh_payment_database.Entity.UserAccount", b =>
                 {
-                    b.Property<long>("UserId")
+                    b.Property<string>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Balance")
                         .HasColumnType("TEXT");

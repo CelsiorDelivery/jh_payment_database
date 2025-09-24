@@ -19,11 +19,11 @@ namespace jh_payment_database.Service
             using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
-                var user = await _context.Users.FindAsync(paymentRequest.SenderUserId);
+                var user = _context.Users.Where(u => u.Email.Equals(paymentRequest.SenderUserId)).FirstOrDefault();
                 if (user == null)
                     return ResponseModel.BadRequest("User not found");
 
-                var receiver = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
+                var receiver = _context.UserAccounts.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
 
                 if (receiver == null)
                 {
@@ -63,7 +63,7 @@ namespace jh_payment_database.Service
             try
             {
                 // var sender = await _context.UserAccounts.FindAsync(transaction.FromUserId);
-                var receiver = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
+                var receiver = _context.UserAccounts.Where(u => u.Email.Equals(paymentRequest.SenderUserId)).FirstOrDefault();
 
                 if (receiver == null)
                     return ResponseModel.BadRequest("User not found");
@@ -91,12 +91,14 @@ namespace jh_payment_database.Service
             }
         }
 
-        public async Task<ResponseModel> CheckBalance(long userId)
+        public async Task<ResponseModel> CheckBalance(string userId)
         {
             try
             {
                 // var sender = await _context.UserAccounts.FindAsync(transaction.FromUserId);
                 var userAccount = await _context.UserAccounts.FindAsync(userId);
+                if (userAccount == null)
+                    userAccount = _context.UserAccounts.Where(u => u.Email.Equals(userId)).FirstOrDefault();
 
                 if (userAccount == null)
                     return ResponseModel.BadRequest("Account not opened");
@@ -110,7 +112,7 @@ namespace jh_payment_database.Service
             }
         }
 
-        public async Task<ResponseModel> GetTransactionDetails(long userId, PageRequestModel pageRequestModel)
+        public async Task<ResponseModel> GetTransactionDetails(string userId, PageRequestModel pageRequestModel)
         {
             var orderBy = string.IsNullOrEmpty(pageRequestModel.SortBy) ? "CreatedDate" : pageRequestModel.SortBy;
             var transactions = _context.Transactions
@@ -130,8 +132,8 @@ namespace jh_payment_database.Service
         {
             using var tx = await _context.Database.BeginTransactionAsync();
 
-            var sender = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
-            var receiver = await _context.UserAccounts.FindAsync(paymentRequest.ReceiverUserId);
+            var sender = _context.UserAccounts.Where(u => u.Email.Equals(paymentRequest.SenderUserId)).FirstOrDefault();
+            var receiver = _context.UserAccounts.Where(u => u.Email.Equals(paymentRequest.ReceiverUserId)).FirstOrDefault();
 
             if (sender == null || receiver == null)
                 return ResponseModel.BadRequest("User not found");
@@ -160,8 +162,8 @@ namespace jh_payment_database.Service
         {
             using var tx = await _context.Database.BeginTransactionAsync();
 
-            var sender = await _context.UserAccounts.FindAsync(paymentRequest.SenderUserId);
-            var receiver = await _context.UserAccounts.FindAsync(paymentRequest.ReceiverUserId);
+            var sender = _context.UserAccounts.Where(u => u.Email.Equals(paymentRequest.SenderUserId)).FirstOrDefault();
+            var receiver = _context.UserAccounts.Where(u => u.Email.Equals(paymentRequest.ReceiverUserId)).FirstOrDefault();
 
             if (sender == null || receiver == null)
                 return ResponseModel.BadRequest("User not found");
@@ -194,11 +196,13 @@ namespace jh_payment_database.Service
             return ResponseModel.Ok("Transfered successfully");
         }
 
-        public async Task<ResponseModel> ReFund(long userId, string transactionId)
+        public async Task<ResponseModel> ReFund(string userId, string transactionId)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
 
             var userAccount = await _context.UserAccounts.FindAsync(userId);
+            if (userAccount == null)
+                userAccount = _context.UserAccounts.Where(u => u.Email.Equals(userId)).FirstOrDefault();
 
             Guid.TryParse(transactionId, out Guid transactionGuid);
             var transactionDetail = await _context.Transactions.FindAsync(transactionGuid);
@@ -218,7 +222,7 @@ namespace jh_payment_database.Service
             var txCredit = Transaction.GetTransaction(new PaymentRequest
             {
                 SenderUserId = userId,
-                ReceiverUserId = 0,
+                ReceiverUserId = string.Empty,
                 Amount = transactionDetail.Amount,
                 PaymentMethod = PaymentMethodType.System
             }, PaymentStatus.Refund);
@@ -231,11 +235,13 @@ namespace jh_payment_database.Service
             return ResponseModel.Ok("Transfered successfully");
         }
 
-        public async Task<ResponseModel> PartialRefund(long userId, string transactionId)
+        public async Task<ResponseModel> PartialRefund(string userId, string transactionId)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
 
             var userAccount = await _context.UserAccounts.FindAsync(userId);
+            if (userAccount == null)
+                userAccount = _context.UserAccounts.Where(u => u.Email.Equals(userId)).FirstOrDefault();
 
             Guid.TryParse(transactionId, out Guid transactionGuid);
             var transactionDetail = await _context.Transactions.FindAsync(transactionGuid);
@@ -256,7 +262,7 @@ namespace jh_payment_database.Service
             var txCredit = Transaction.GetTransaction(new PaymentRequest
             {
                 SenderUserId = userId,
-                ReceiverUserId = 0,
+                ReceiverUserId = string.Empty,
                 Amount = partialRefund,
                 PaymentMethod = PaymentMethodType.System
             }, PaymentStatus.PartialRefund);

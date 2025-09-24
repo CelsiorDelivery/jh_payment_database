@@ -45,16 +45,31 @@ namespace jh_payment_database.Service
                     FirstName = user.FirstName,
                     IFCCode = user.BankCode,
                     IsActive = true,
+                    Password = HashPassword(user.FirstName),
                     LastName = user.LastName,
                     Mobile = user.Mobile,
                     UPIID = $"{user.FirstName}{ac.Substring(10, 2)}@ybl",
-                    UserId = i,
+                    UserId = Guid.NewGuid().ToString(),
+                    Age = 25,
+                    Address = user.City
                 });
 
                 i++;
             }
 
             return await Task.FromResult(ResponseModel.Ok("Created"));
+        }
+
+        private string HashPassword(string password)
+        {
+            // Implement a secure hashing algorithm here, e.g., BCrypt, PBKDF2, etc.
+            // For demonstration purposes, we'll use a simple hash (not secure for production).
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                var bytes = System.Text.Encoding.UTF8.GetBytes(password);
+                var hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
         }
 
         private string Generate14DigitNumber(Random random)

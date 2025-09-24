@@ -13,9 +13,9 @@ namespace jh_payment_database.Entity
 
 
         /// <summary>
-        /// Represents the card number.
+        /// Represents the sender user id.
         /// </summary>
-        public long UserId { get; set; }
+        public string UserId { get; set; }
 
 
         /// <summary>

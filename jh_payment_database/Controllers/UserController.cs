@@ -27,10 +27,15 @@ namespace jh_payment_database.Controllers
             return await _userService.AddUser(user);
         }
 
-        [HttpDelete("removeuser/{userId}")]
-        public async Task<ResponseModel> RemoveUser([FromRoute]long userId)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userEmail"></param>
+        /// <returns></returns>
+        [HttpDelete("removeuser/{userEmail}")]
+        public async Task<ResponseModel> RemoveUser([FromRoute]string userEmail)
         {
-            return await _userService.DeactivateUser(userId);
+            return await _userService.DeactivateUser(userEmail);
         }
 
         [HttpGet("getuser/{email}")]
