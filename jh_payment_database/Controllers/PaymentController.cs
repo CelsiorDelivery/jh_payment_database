@@ -25,7 +25,7 @@ namespace jh_payment_database.Controllers
             return await _transactionService.CreditFund(paymentRequest);
         }
 
-        [HttpPost("debit/{userId}")]
+        [HttpPost("debit/{userEmail}")]
         public async Task<ResponseModel> DebitFund(DebitPaymentRequest paymentRequest)
         {
             return await _transactionService.DebitFund(paymentRequest);
@@ -43,28 +43,28 @@ namespace jh_payment_database.Controllers
             return await _transactionService.TransferCardAsync(paymentRequest);
         }
 
-        [HttpPut("refund/{userId}/{transactionId}")]
-        public async Task<ResponseModel> ReFund([FromRoute] long userId, [FromRoute] string transactionId)
+        [HttpPut("refund/{userEmail}/{transactionId}")]
+        public async Task<ResponseModel> ReFund([FromRoute] string userEmail, [FromRoute] string transactionId)
         {
-            return await _transactionService.ReFund(userId, transactionId);
+            return await _transactionService.ReFund(userEmail, transactionId);
         }
 
-        [HttpPut("partial-refund/{userId}/{transactionId}")]
-        public async Task<ResponseModel> PartialRefund([FromRoute] long userId, [FromRoute] string transactionId)
+        [HttpPut("partial-refund/{userEmail}/{transactionId}")]
+        public async Task<ResponseModel> PartialRefund([FromRoute] string userEmail, [FromRoute] string transactionId)
         {
-            return await _transactionService.PartialRefund(userId, transactionId);
+            return await _transactionService.PartialRefund(userEmail, transactionId);
         }
 
-        [HttpGet("checkbalance/{userId}")]
-        public async Task<ResponseModel> CheckBalance([FromRoute] long userId)
+        [HttpGet("checkbalance/{userEmail}")]
+        public async Task<ResponseModel> CheckBalance([FromRoute] string userEmail)
         {
-            return await _transactionService.CheckBalance(userId);
+            return await _transactionService.CheckBalance(userEmail);
         }
 
-        [HttpGet("transaction/{userId}")]
-        public async Task<ResponseModel> GetTransactionDetail([FromRoute] long userId, [FromQuery] PageRequestModel pageRequestModel)
+        [HttpGet("transaction/{userEmail}")]
+        public async Task<ResponseModel> GetTransactionDetail([FromRoute] string userEmail, [FromQuery] PageRequestModel pageRequestModel)
         {
-            return await _transactionService.GetTransactionDetails(userId, pageRequestModel);
+            return await _transactionService.GetTransactionDetails(userEmail, pageRequestModel);
         }
     }
 }

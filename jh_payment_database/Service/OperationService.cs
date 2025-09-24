@@ -45,10 +45,13 @@ namespace jh_payment_database.Service
                     FirstName = user.FirstName,
                     IFCCode = user.BankCode,
                     IsActive = true,
+                    Password = user.FirstName,
                     LastName = user.LastName,
                     Mobile = user.Mobile,
                     UPIID = $"{user.FirstName}{ac.Substring(10, 2)}@ybl",
-                    UserId = i,
+                    UserId = Guid.NewGuid().ToString(),
+                    Age = 25,
+                    Address = user.City
                 });
 
                 i++;

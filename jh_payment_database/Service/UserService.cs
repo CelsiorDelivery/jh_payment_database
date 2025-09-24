@@ -46,6 +46,7 @@ namespace jh_payment_database.Service
                 {
                     var updateUser = new User
                     {
+                        UserId = presentUser.UserId,
                         BankName = presentUser.BankName,
                         Branch = presentUser.Branch,
                         CVV = presentUser.CVV,
@@ -75,12 +76,12 @@ namespace jh_payment_database.Service
             }
         }
 
-        public async Task<ResponseModel> DeactivateUser(long userId)
+        public async Task<ResponseModel> DeactivateUser(string userEmail)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
-                var presentUser = await _context.Users.FindAsync(userId);
+                var presentUser = _context.Users.Where(u=>u.Email.Equals(userEmail)).FirstOrDefault();
 
                 if (presentUser != null)
                 {
@@ -109,7 +110,7 @@ namespace jh_payment_database.Service
                 User presentUser = null;
                 if (long.TryParse(email, out var id))
                 {
-                    presentUser = _context.Users.Where(x => x.UserId.Equals(id)).FirstOrDefault();
+                    presentUser = _context.Users.Where(x => x.Mobile.Equals(id)).FirstOrDefault();
                 }
                 else
                 {
@@ -120,7 +121,10 @@ namespace jh_payment_database.Service
                 {
                     throw new Exception("User not found");
                 }
+
                 var userAccount = await _context.UserAccounts.FindAsync(presentUser.UserId);
+                if (userAccount == null)
+                    userAccount = _context.UserAccounts.Where(u => u.Email.Equals(presentUser.Email)).FirstOrDefault();
 
                 if (userAccount != null) 
                     presentUser.Balance = userAccount.Balance;
@@ -138,7 +142,7 @@ namespace jh_payment_database.Service
         {
             try
             {
-                var presentUser = _context.Users.Where(x => x.UserId > 0).ToList<User>();
+                var presentUser = _context.Users.ToList<User>();
 
                 if (presentUser == null)
                 {
@@ -159,7 +163,7 @@ namespace jh_payment_database.Service
             try
             {
                 var presentUser = _context.Users
-                    .OrderBy(x => x.UserId)
+                    .OrderBy(x => x.Email)
                     .Skip(pageSize * (pageNumber - 1))
                     .Take(pageSize)
                     .ToList<User>();
@@ -183,7 +187,7 @@ namespace jh_payment_database.Service
             using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
-                var presentUser = await _context.Users.FindAsync(user.UserId);
+                var presentUser = _context.Users.Where(u => u.Email.Equals(user.Email)).FirstOrDefault();
                 if (presentUser != null && presentUser.AccountNumber == user.AccountNumber)
                 {
                     presentUser.BankName = user.BankName;

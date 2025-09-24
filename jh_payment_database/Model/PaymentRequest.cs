@@ -8,14 +8,14 @@ namespace jh_payment_database.Model
     public class PaymentRequest
     {
         /// <summary>
-        /// Represents the unique identifier of the user sending the payment.
+        /// Represents the Email of the user sending the payment.
         /// </summary>
-        public long SenderUserId { get; set; }
+        public string SenderUserId { get; set; }
 
         /// <summary>
-        /// Represents the unique identifier of the user receiving the payment.
+        /// Represents the Email of the user receiving the payment.
         /// </summary>
-        public long ReceiverUserId { get; set; }
+        public string ReceiverUserId { get; set; }
 
         /// <summary>
         /// Represents the amount to be paid.

@@ -16,8 +16,8 @@ namespace jh_payment_database.Migrations
                 columns: table => new
                 {
                     PaymentId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    SenderUserId = table.Column<long>(type: "INTEGER", nullable: false),
-                    ReceiverUserId = table.Column<long>(type: "INTEGER", nullable: false),
+                    SenderUserId = table.Column<string>(type: "TEXT", nullable: false),
+                    ReceiverUserId = table.Column<string>(type: "TEXT", nullable: false),
                     Amount = table.Column<decimal>(type: "TEXT", nullable: false),
                     Method = table.Column<int>(type: "INTEGER", nullable: false),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
@@ -33,7 +33,7 @@ namespace jh_payment_database.Migrations
                 columns: table => new
                 {
                     TransactionId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<long>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
                     AddedOn = table.Column<DateTime>(type: "TEXT", nullable: false),
                     CardNumber = table.Column<string>(type: "TEXT", nullable: false),
                     CardHolderName = table.Column<string>(type: "TEXT", nullable: false),
@@ -56,8 +56,8 @@ namespace jh_payment_database.Migrations
                 {
                     TransactionId = table.Column<Guid>(type: "TEXT", nullable: false),
                     PaymentId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FromUserId = table.Column<long>(type: "INTEGER", nullable: false),
-                    ToUserId = table.Column<long>(type: "INTEGER", nullable: false),
+                    FromUserId = table.Column<string>(type: "TEXT", nullable: false),
+                    ToUserId = table.Column<string>(type: "TEXT", nullable: false),
                     Amount = table.Column<decimal>(type: "TEXT", nullable: false),
                     TrasactionStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
@@ -72,7 +72,7 @@ namespace jh_payment_database.Migrations
                 name: "UserAccounts",
                 columns: table => new
                 {
-                    UserId = table.Column<long>(type: "INTEGER", nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     FullName = table.Column<string>(type: "TEXT", nullable: false),
                     Email = table.Column<string>(type: "TEXT", nullable: false),
@@ -88,7 +88,7 @@ namespace jh_payment_database.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    UserId = table.Column<long>(type: "INTEGER", nullable: false)
+                    UserId = table.Column<string>(type: "TEXT", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     FirstName = table.Column<string>(type: "TEXT", nullable: false),
                     LastName = table.Column<string>(type: "TEXT", nullable: false),

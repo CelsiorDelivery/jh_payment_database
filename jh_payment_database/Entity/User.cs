@@ -8,7 +8,7 @@
         /// <summary>
         /// 
         /// </summary>
-        public long UserId { set; get; }
+        public string UserId { set; get; }
         /// <summary>
         /// 
         /// </summary>

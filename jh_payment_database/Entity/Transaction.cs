@@ -8,8 +8,8 @@ namespace jh_payment_database.Entity
         [Key]
         public Guid TransactionId { get; set; }
         public Guid PaymentId { get; set; }
-        public long FromUserId { get; set; }
-        public long ToUserId { get; set; }
+        public string FromUserId { get; set; }
+        public string ToUserId { get; set; }
         public decimal Amount { get; set; }
         public string? ProductId { get; set; } = null;
         public PaymentStatus TrasactionStatus { get; set; } = PaymentStatus.Success;
