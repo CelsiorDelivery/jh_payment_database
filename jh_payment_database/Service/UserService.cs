@@ -23,6 +23,8 @@ namespace jh_payment_database.Service
             {
                 // var sender = await _context.UserAccounts.FindAsync(transaction.FromUserId);
                 var presentUser = await _context.Users.FindAsync(user.UserId);
+                if (presentUser == null)
+                    presentUser = _context.Users.Where(u => u.AccountNumber.Equals(user.AccountNumber)).FirstOrDefault();
 
                 if (presentUser == null)
                 {
@@ -44,23 +46,7 @@ namespace jh_payment_database.Service
                 }
                 else
                 {
-                    var updateUser = new User
-                    {
-                        UserId = presentUser.UserId,
-                        BankName = presentUser.BankName,
-                        Branch = presentUser.Branch,
-                        CVV = presentUser.CVV,
-                        DateOfExpiry = presentUser.DateOfExpiry,
-                        Email = presentUser.Email,
-                        FirstName = presentUser.FirstName,
-                        LastName = presentUser.LastName,
-                        IFCCode = presentUser.IFCCode,
-                        Mobile = presentUser.Mobile,
-                        UPIID = presentUser.UPIID,
-                    };
-
-                    _context.Users.Update(updateUser);
-                    message = "User Updated";
+                    throw new Exception("User already exist with same id or account number");
                 }
 
                 await _context.SaveChangesAsync();
